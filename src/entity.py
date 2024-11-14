@@ -1,47 +1,36 @@
+import shape, constants
 import pygame
-import constants
 
-class Entity(pygame.sprite.Sprite):
-    def __init__(self, mass, x, y):
-        if hasattr(self, "containers"):
-            super().__init__(self.containers)
-        else:
-            super().__init__()
-
+class Entity:
+    def __init__(self, position, velocity, mass):
+        self.velocity = velocity
+        self.position = position
         self.mass = mass
-        self.position = pygame.Vector2(x, y)
-        self.acceleration = pygame.Vector2(0, constants.GRAVITY)
-        self.velocity = pygame.Vector2(0, 0)
-
-    def draw(self, screen):
-        pass
 
     def update(self, dt):
-        pass
-
-    def check_collisons(self, other):
+        self.position += self.velocity * dt
+    
+    def getBound(self):
         pass
 
 class Circle(Entity):
-    def __init__(self, mass, x, y, radius):
-        super().__init__(mass, x, y)
-        self.type = constants.entity_types.CIRCLE
+    def __init__(self, center, radius, velocity, mass, color):
+        super().__init__(center, velocity, mass)
         self.radius = radius
+        self.color = color
     
-    def draw(self, screen):
-        pygame.draw.circle(screen, "white", self.position, self.radius, 2)
+    def getBound(self):
+        return shape.BoundingCircle(self.position, self.radius, self.color)
+    
+class Line(Entity):
+    def __init__(self, normal, distance, length):
+        super().__init__(normal * distance, pygame.Vector2(0, 0), constants.INFINITY)
+        self.normal = normal
+        self.distance = distance
+        self.length = length
+    
+    def getBound(self):
+        return shape.BoundLine(self.normal, self.distance, self.length)
     
     def update(self, dt):
-        self.velocity += self.acceleration * dt
-        self.position += self.velocity * dt
-
-    def check_collisons(self, other):
-        if other == self:
-            return False
-        if other.type == constants.entity_types.CIRCLE:
-            return (self.position.distance_to(other.position) <= self.radius + other.radius)
-        if other.type == constants.entity_types.LINE:
-            circle_to_line = self.position - other.start
-            t = pygame.math.clamp((circle_to_line * other.position) / (other.position * other.position), 0, 1)
-            p = pygame.Vector2(other.start.x + t * other.position.x, other.start.y + t * other.position.y)
-            return (self.position.distance_to(p) <= self.radius)
+        self.velocity = pygame.Vector2(0, 0)
