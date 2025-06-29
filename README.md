@@ -1,2 +1,2 @@
-# python_2d_physics_engine
-A simple 2d physics engine written in pyhton
+# 2D Physics Engine
+A simple 2d physics engine written in python
